@@ -16,8 +16,8 @@ class Auth_Service:
             return None
         
     @staticmethod
-    def set_refreshtoken(email, refreshtoken):
-        user = User.query.filter_by(email=email).first()
+    def set_refreshtoken(id, refreshtoken):
+        user = User.query.filter_by(id=id).first()
         user.refreshtoken = refreshtoken
         db.session.commit()
         return True

@@ -12,14 +12,14 @@ def ai_routes(ai_ns):
     class AiTest(Resource):
         @ai_ns.expect(upload_parser)
         @ai_ns.doc(
-            description = '댓글 분석으로, SCORE를 측정, 긍정 부정 분류',
+            description = '생선 사진 보고, 예측',
             responses={
-            400: "Bad request. need 'review'",
+            400: "Bad request. need 'Picture'",
             500: "Cannot find the AI Model"
         })
         def post(self):
             if 'file' not in request.files:
-                abort(400, error="No file part")
+                abort(400, error="Bad request. need 'Picture'")
             
             image_file = request.files['file']
             try:
