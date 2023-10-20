@@ -51,5 +51,5 @@ Auction_fields = api.model('Auction', {
 
 Login_fields = api.namespace('Auth').model('Auth', {
    'id': fields.String(required=True, example='okh19941994@naver.com'),
-   'password': fields.String(required=True, example='1234')
+   'password': fields.String(required=True, example='qwer1234')
 })
