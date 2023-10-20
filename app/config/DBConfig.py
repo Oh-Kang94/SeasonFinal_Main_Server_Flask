@@ -1,5 +1,5 @@
 import os 
-import redis
+from redis import Redis
 
 DB_HOST = os.environ.get('DB_HOST')
 DB_USER = os.environ.get('DB_USER')
@@ -19,7 +19,7 @@ class MySQLConfig:
 class Config(object):
     # Parse redis environment variables.
     SESSION_TYPE = "redis"
-    redis_client = redis.Redis(
+    redis_client = Redis(
         host=REDIS_HOST, port=REDIS_PORT
     )
     SESSION_REDIS = redis_client

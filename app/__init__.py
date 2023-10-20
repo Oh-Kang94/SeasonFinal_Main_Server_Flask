@@ -10,12 +10,24 @@ from .controller.controller import register_namespaces
 import warnings
 
 app = Flask(__name__)
+
 CORS(app)
+
 app.config['JSON_AS_ASCII'] = False
+
 app.config.from_object(MySQLConfig)
+
+'''JWT 설정'''
 # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 30 * 24 *  60 * 60
 # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 
+''''''
+# JST SECRET KEY
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY')
+
+# SECRET_KEY 설정
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+
+
 api.init_app(app)
 db.init_app(app)
 jwt.init_app(app)
