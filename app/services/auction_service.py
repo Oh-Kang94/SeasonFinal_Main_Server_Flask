@@ -20,6 +20,35 @@ class AuctionService:
         db.session.commit()
         return newAuction
     
+    @staticmethod
+    def update_auction(data, id, auctionid):
+        '''경매 수정하기 '''
+        auctionid = Auction.query.filter_by(auctionid=auctionid).first()
+        newAuction = Auction(
+            seller_id = id,
+            title = data['title'],
+            content = data['content'],
+            pic = data['pic'],
+            fish = data['fish'],
+            pricestart = data['pricestart']
+        )
+        db.session.add(newAuction)
+        db.session.commit()
+        return newAuction
+    
+    def update_password(id, password, new_password):
+        user = User.query.filter_by(id=id).first()
+
+        if user:
+            if user.password == password:
+                user.password = new_password
+                db.session.commit()
+                return True
+            else:
+                return False
+        else:
+            return False
+
     
     @staticmethod
     def countupAuctionView(auctionid):
@@ -32,19 +61,6 @@ class AuctionService:
         else:
             return False
 
-    # @staticmethod
-    # def create_user(data):
-    #     new_user = User(
-    #         id=data['id'],
-    #         password=data['password'],
-    #         name=data['name'],
-    #         nickname=data['nickname'],
-    #         phone=data['phone'],
-    #         address=data['address'],
-    #     )
-    #     db.session.add(new_user)
-    #     db.session.commit()
-    #     return new_user
 
     # @staticmethod
     # def get_user_by_id(id):
