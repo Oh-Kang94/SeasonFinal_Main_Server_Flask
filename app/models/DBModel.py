@@ -17,9 +17,8 @@ class User(db.Model):
     bankaccount = db.Column(db.String(45), nullable=True)
     insertdate = db.Column(db.DateTime, default=current_datetime())
     deletedate = db.Column(db.DateTime, default=None)
-    refreshToken = db.Column(db.String(45), default=None)
+    refreshtoken = db.Column(db.String(200), default=None)
     canseller = db.Column(db.Boolean, default=False)
-
 
 class Balance(db.Model):
     __tablename__ = 'balance'

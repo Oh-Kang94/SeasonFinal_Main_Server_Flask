@@ -14,7 +14,7 @@ User_fields = api.model('User', {
    'bankaccount': fields.String(description='Bank Account'),
    'insertdate': fields.DateTime(description='Insert Date', dt_format="iso8601"),
    'deletedate':  fields.DateTime(description='Delete Date', dt_format="iso8601", required=False),
-   'refreshToken':  fields.String(description='Refresh Token', required=False),
+   'refreshtoken':  fields.String(description='Refresh Token', required=False),
    'canseller': fields.Boolean(description='Can Seller')
 })
 
