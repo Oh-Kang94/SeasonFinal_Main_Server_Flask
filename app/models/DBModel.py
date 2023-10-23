@@ -41,7 +41,6 @@ class Auction(db.Model):
     content = db.Column(db.Text, nullable=True)
     pic = db.Column(db.String(45), nullable=True)
     fish = db.Column(db.String(45), nullable=True)
-    roomurl = db.Column(db.String(45), nullable=True)
     view = db.Column(db.Integer, default = 0)
     pricestart = db.Column(db.Integer, nullable=True)
     pricenow = db.Column(db.Integer, nullable=True)
@@ -66,42 +65,3 @@ class Bidded(db.Model):
     auction = db.relationship('Auction', backref='bids')
     user = db.relationship('User', backref='bidded_items')
 
-
-# class Movie(db.Model):
-#     __tablename__ = "movie"
-#     id = db.Column(db.Integer, primary_key=True)
-#     ott = db.Column(db.String(45))
-#     title = db.Column(db.String(45))
-#     imagepath = db.Column(db.Text)
-#     releasedate = db.Column(db.String(45))
-#     genre = db.Column(db.String(45))
-#     totalaudience = db.Column(db.Integer)
-#     country = db.Column(db.String(45))
-#     rating = db.Column(db.String(45))
-#     star = db.Column(db.Float)
-#     runningtime = db.Column(db.Integer)
-#     summary = db.Column(db.Text)
-
-# class Review(db.Model):
-#     __tablename__ = "review"
-#     user_email = db.Column(db.String(50), db.ForeignKey('user.email'), primary_key=True)
-#     movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), primary_key=True)
-#     content = db.Column(db.Text)
-#     rating = db.Column(db.Float)
-#     insertdate = db.Column(db.String(45))
-#     deletedate = db.Column(db.String(45), nullable=True)
-
-#     # Define relationships
-#     user = db.relationship('User', backref='reviews')
-#     movie = db.relationship('Movie', backref='reviews')
-
-# class Cast(db.Model):
-#     __tablename__ = "cast"
-#     id = db.Column(db.Integer, primary_key=True)
-#     movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'))
-#     imgpath = db.Column(db.Text)
-#     name = db.Column(db.String(45))
-#     role = db.Column(db.String(45))
-
-#     # Define relationships
-#     movie = db.relationship('Movie', backref='casts')

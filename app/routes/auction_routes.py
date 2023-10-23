@@ -1,5 +1,5 @@
 from flask_restx import Resource, marshal, fields
-from flask import request
+from flask import request, session
 from ..models.ApiModel import Auction_fields
 from ..services.user_service import UsersService
 from ..services.auction_service import AuctionService
@@ -39,7 +39,7 @@ def  auction_routes(review_ns, auth_ns):
             else:
                 return {'message': "Invalid or missing Authorization header"}, 400
             data = api.payload
-
+            
             result = AuctionService.create_auction(
                 data, id=id)
             if result:
@@ -47,7 +47,7 @@ def  auction_routes(review_ns, auth_ns):
             else:
                 return {'message': 'Already wrote Review'}, 500
     
-    @review_ns.route('/')
+    @review_ns.route('/<string:auctionid>')
     class EditAuction(Resource):
         @jwt_required()
         @review_ns.doc(

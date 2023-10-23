@@ -40,7 +40,6 @@ Auction_fields = api.model('Auction', {
    "content":fields.String(Required=True, description=" Content "),
    "pic": fields.String(Required=False, nullable=True),
    "fish": fields.String(Required=False, nullable=True),
-   "roomurl": fields.String(Required=False, nullable=True),
    "view": fields.Integer(),
    "pricestart":fields.Integer(),
    "pricenow":  fields.Integer(),
