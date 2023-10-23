@@ -3,6 +3,7 @@ from ..config.Config import db
 class UsersService:
     @staticmethod
     def create_user(data):
+        ''' user 회원가입하기'''
         new_user = User(
             id=data['id'],
             password=data['password'],
@@ -17,19 +18,22 @@ class UsersService:
 
     @staticmethod
     def get_user_by_id(id):
+        '''user가 id로 있는지 체크'''
         return User.query.filter_by(id=id).first()
     
     @staticmethod
     def get_user_by_nickname(nickname):
+        '''user가 nickname으로 있는지 체크'''
         return User.query.filter_by(nickname=nickname).first()
     
     @staticmethod
     def get_nickname_by_id(id):
+        '''id로 nickname 검색하기'''
         return User.query.filter_by(id=id).first().nickname
     
     @staticmethod
     def update_nickname(id, new_nickname):
-        # 이메일을 기반으로 사용자를 찾습니다.
+        '''nickname 변경하기'''
         user = User.query.filter_by(id=id).first()
 
         if user:
@@ -42,6 +46,7 @@ class UsersService:
         
     @staticmethod
     def update_password(id, password, new_password):
+        '''비밀번호 바꾸기'''
         user = User.query.filter_by(id = id).first()
 
         if user:

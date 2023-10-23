@@ -2,7 +2,7 @@ from flask_restx import Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 from ..config.Config import api
 from ..services.user_service import UsersService
-from ..services.auth_service import Auth_Service
+from ..services.auth_service import AuthService
 from ..models.ApiModel import Login_fields
 
 def auth_routes(auth_ns):
@@ -19,7 +19,7 @@ def auth_routes(auth_ns):
             if user and user.password == password:
                 access_token = create_access_token(identity=id)
                 refresh_token = create_refresh_token(identity=id)
-                Auth_Service.set_refreshtoken(refreshtoken=refresh_token,id=id)
+                AuthService.set_refreshtoken(refreshtoken=refresh_token,id=id)
                 response =  {
                     'message': 'Logged in successfully',
                     'name' : user.name,

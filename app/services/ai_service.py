@@ -5,7 +5,7 @@ import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
-class PredictModel() :
+class AiService() :
         def __init__(self):
             self.targetList = ['감성돔' , '넙치농어' , '부시리' , '독가시치' ]
             ## 사진 크기 줄이기 #
@@ -18,6 +18,7 @@ class PredictModel() :
         ##이미지 파일을 file에 넣기.
         ##file = sorted(glob.glob('./FishData/jeju/01_rotate 복사본/*.png'))  ##  이미지 파일
         def predictFish(self,file):
+            ''' 이미지를 넣어서, 생선 유추하기'''
             ### 사용할 변수들 설정 및 불러오기
             img_height_size =200 # 리사이징할 그림의 높이
             img_width_size =350 # 리사이징할 그림의 넓이

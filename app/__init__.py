@@ -40,7 +40,7 @@ api.init_app(app)
 db.init_app(app)
 jwt.init_app(app)
 socketio = SocketIO(app, cors_allowed_origins="*", message_queue= f'redis://{REDIS_HOST}:{REDIS_PORT}', 
-                    logger=True,engineio_logger=True)
+                    logger=True)
 redis_client = redis.StrictRedis(
     host=REDIS_HOST,
     port=REDIS_PORT,

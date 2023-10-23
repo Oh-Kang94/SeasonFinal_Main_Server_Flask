@@ -1,14 +1,15 @@
 from flask_restx import Resource, marshal, fields
-from flask import request, session
+from flask import request
 from ..models.ApiModel import Auction_fields
-from ..services.user_service import UsersService
 from ..services.auction_service import AuctionService
-from ..services.auth_service import Auth_Service
+from ..services.auth_service import AuthService
 from ..config.Config import api
 from flask_jwt_extended import jwt_required
-from flask_socketio import emit, send
 
-def  auction_routes(review_ns, auth_ns):
+
+def auction_routes(review_ns, auth_ns):
+    authService = AuthService()
+
     @review_ns.route('/')
     class CreateAuction(Resource):
         @jwt_required()
@@ -30,24 +31,19 @@ def  auction_routes(review_ns, auth_ns):
         }))
         def post(self):
             authorization_header = request.headers.get('Authorization')
-            if authorization_header and authorization_header.startswith('Bearer '):
-                decoded_token = Auth_Service.decode_token(authorization_header)
-                if decoded_token:
-                    # 여기서 'sub'는 사용자의 이메일 주소를 의미합니다.
-                    id = decoded_token.get('sub')
-                else:
-                    return {'message': 'Invalid token'}, 401
-            else:
-                return {'message': "Invalid or missing Authorization header"}, 400
+            auth_result = authService.authenticate_request(
+                authorization_header)
+            if isinstance(auth_result, dict):
+                return auth_result
+            id = auth_result
             data = api.payload
-            
             result = AuctionService.create_auction(
                 data, id=id)
             if result:
                 return {'message': 'Review created successfully', 'result': marshal(result, Auction_fields), "socekturl": f"ws://127.0.0.1:18712/{result.auctionid}"}, 200
             else:
                 return {'message': 'Already wrote Review'}, 500
-    
+
     @review_ns.route('/<string:auctionid>')
     class EditAuction(Resource):
         @jwt_required()
@@ -69,21 +65,15 @@ def  auction_routes(review_ns, auth_ns):
         }))
         def put(self):
             authorization_header = request.headers.get('Authorization')
-            if authorization_header and authorization_header.startswith('Bearer '):
-                decoded_token = Auth_Service.decode_token(authorization_header)
-                if decoded_token:
-                    # 여기서 'sub'는 사용자의 이메일 주소를 의미합니다.
-                    id = decoded_token.get('sub')
-                else:
-                    return {'message': 'Invalid token'}, 401
-            else:
-                return {'message': "Invalid or missing Authorization header"}, 400
+            auth_result = authService.authenticate_request(
+                authorization_header)
+            if isinstance(auth_result, dict):
+                return auth_result
+            id = auth_result
             data = api.payload
-
             result = AuctionService.create_auction(
                 data, id=id)
             if result:
                 return {'message': 'Review created successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
                 return {'message': 'Already wrote Review'}, 500
-    
