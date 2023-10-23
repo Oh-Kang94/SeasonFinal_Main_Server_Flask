@@ -5,8 +5,10 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, send
 
 from flask_cors import CORS
+
+from app.routes.chat_routes import chat_routes
 from .config.Config import api, db, jwt
-from .config.DBConfig import MySQLConfig, RedisConfig
+from .config.DBConfig import MySQLConfig
 from .controller.controller import register_namespaces
 import warnings
 
@@ -21,7 +23,6 @@ CORS(app)
 app.config['JSON_AS_ASCII'] = False
 
 app.config.from_object(MySQLConfig)
-app.config.from_object(RedisConfig)
 
 '''JWT 설정'''
 # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 30 * 24 *  60 * 60
@@ -40,28 +41,28 @@ REDIS_PORT = os.environ.get("REDIS_PORT")
 api.init_app(app)
 db.init_app(app)
 jwt.init_app(app)
-socketio = SocketIO(app, cors_allowed_origins="*", message_queue= f'redis://{REDIS_HOST}:{REDIS_PORT}', logger=True,engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", message_queue= f'redis://{REDIS_HOST}:{REDIS_PORT}', 
+                    logger=True,engineio_logger=True)
 register_namespaces(api)
+chat_routes(socketio)
 
 SESSION_TYPE = 'redis'
 app.config.from_object(__name__)
 
 
-@socketio.on("message", namespace= "/1")
-def request(message):
-    print("message : " + message)
-    to_client = dict()
-    if message == 'new_connect':
-        to_client['message'] = "welcome tester"
-        to_client['type'] = 'connect'
-    else:
-        to_client['message'] = message
-        to_client['type'] = 'normal'
-    send(to_client, broadcast = True)
-    
-    
+# @socketio.on("message", namespace= "/1")
+# def request(data):
+#     to_client = dict()
+#     if data == 'new_connect':
+#         to_client['data'] = "welcome tester"
+#         to_client['type'] = 'connect'
+#     else:
+#         to_client['data'] = data
+#         to_client['type'] = 'normal'
+#     send(to_client, broadcast = True)
 
 
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     socketio.run()
+

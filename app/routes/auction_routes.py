@@ -6,6 +6,7 @@ from ..services.auction_service import AuctionService
 from ..services.auth_service import Auth_Service
 from ..config.Config import api
 from flask_jwt_extended import jwt_required
+from flask_socketio import emit, send
 
 def  auction_routes(review_ns, auth_ns):
     @review_ns.route('/')
@@ -43,7 +44,7 @@ def  auction_routes(review_ns, auth_ns):
             result = AuctionService.create_auction(
                 data, id=id)
             if result:
-                return {'message': 'Review created successfully', 'result': marshal(result, Auction_fields)}, 200
+                return {'message': 'Review created successfully', 'result': marshal(result, Auction_fields), "socekturl": f"ws://127.0.0.1:18712/{result.auctionid}"}, 200
             else:
                 return {'message': 'Already wrote Review'}, 500
     
@@ -85,3 +86,4 @@ def  auction_routes(review_ns, auth_ns):
                 return {'message': 'Review created successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
                 return {'message': 'Already wrote Review'}, 500
+    
