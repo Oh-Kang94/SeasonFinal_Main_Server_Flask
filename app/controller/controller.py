@@ -5,6 +5,8 @@ from ..routes.user_routes import user_routes
 from ..routes.auction_routes import auction_routes
 from ..routes.ai_routes import ai_routes
 from ..routes.auth_routes import auth_routes
+# from ..routes.chat_routes import chat_routes
+# from .. import socketio, redis_client
 
 authorizations = {"Bearer": {"type": "apiKey", "in": "header", "name": "Authorization"}}
 
@@ -18,6 +20,8 @@ def register_namespaces(api):
     auth_routes(auth_ns)
     ai_routes(ai_ns)
     auction_routes(auc_ns, auth_ns)
+
+    # chat_routes(socketio, redis_client)
 
     api.add_namespace(user_ns)
     api.add_namespace(auth_ns)

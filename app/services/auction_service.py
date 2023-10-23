@@ -55,9 +55,21 @@ class AuctionService:
         '''경매 들어가면 조회수 늘리기'''
         auction = Auction.query.filter_by(auctionid=auctionid).first()
         if auction:
-            auction.view = auction.view + 1
+            auction.view = int(auction.view) + 1
             db.session.commit()
             return True
+        else:
+            return False
+        
+    @staticmethod
+    def countupAuctionPrice(auctionid, price, buyerid):
+        '''경매 가격 입찰하기'''
+        auction = Auction.query.filter_by(auctionid=auctionid).first()
+        if auction:
+            if auction.pricenow and auction.pricestart < price:
+                auction.pricenow = price
+                db.session.commit()
+                return True
         else:
             return False
 

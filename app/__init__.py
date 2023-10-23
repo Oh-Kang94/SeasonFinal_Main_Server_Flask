@@ -12,9 +12,7 @@ from .config.DBConfig import MySQLConfig
 from .controller.controller import register_namespaces
 import warnings
 
-
 import redis
-from flask_session import Session
 
 app = Flask(__name__)
 
@@ -54,20 +52,7 @@ chat_routes(socketio, redis_client)
 SESSION_TYPE = 'redis'
 app.config.from_object(__name__)
 
-
-# @socketio.on("message", namespace= "/1")
-# def request(data):
-#     to_client = dict()
-#     if data == 'new_connect':
-#         to_client['data'] = "welcome tester"
-#         to_client['type'] = 'connect'
-#     else:
-#         to_client['data'] = data
-#         to_client['type'] = 'normal'
-#     send(to_client, broadcast = True)
-
-
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
-    socketio.run()
+    socketio.run(app= app)
 
