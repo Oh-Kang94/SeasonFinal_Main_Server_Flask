@@ -1,7 +1,8 @@
+import json
 from flask_socketio import emit, send, join_room, leave_room
 from datetime import datetime
 
-def chat_routes(socketio):
+def chat_routes(socketio, redis_client):
     @socketio.on("join", namespace="/chat")
     def joined_room(data):
         room = data["room"]
@@ -21,7 +22,13 @@ def chat_routes(socketio):
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         message_data = {
             "message": message,
-            "timestamp": current_time
         }
-        # redis_client.hset(room, message_data["timestamp"], message_data)
+        message_data_str = json.dumps(message_data) 
+        redis_client.hset(room, message_data["timestamp"], message_data_str)
         emit("message", message_data, to=room)
+
+    @socketio.on("getmessage", namespace="/chat")
+    def get_messages(data):
+        room = data["room"]
+        messages = redis_client.hgetall(room)
+        emit("message" ,{k: json.loads(v) for k, v in messages.items()})

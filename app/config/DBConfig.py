@@ -11,4 +11,3 @@ class MySQLConfig:
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}?charset=utf8'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-

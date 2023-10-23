@@ -43,8 +43,13 @@ db.init_app(app)
 jwt.init_app(app)
 socketio = SocketIO(app, cors_allowed_origins="*", message_queue= f'redis://{REDIS_HOST}:{REDIS_PORT}', 
                     logger=True,engineio_logger=True)
+redis_client = redis.StrictRedis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    decode_responses=True
+)
 register_namespaces(api)
-chat_routes(socketio)
+chat_routes(socketio, redis_client)
 
 SESSION_TYPE = 'redis'
 app.config.from_object(__name__)
