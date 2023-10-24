@@ -1,4 +1,4 @@
 from datetime import datetime
 
 def current_datetime():
-    return datetime.utcnow()
+    return datetime.now()

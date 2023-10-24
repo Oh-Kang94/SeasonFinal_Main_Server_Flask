@@ -138,35 +138,7 @@ def auction_routes(auc_ns, auth_ns):
                     return {'message': 'Same as Before'}, 500
             else:
                 return {'message': "You're not Seller" }, 501
-        
-        @jwt_required()
-        @auc_ns.doc(
-            description='경매 삭제하기.',
-            responses={
-                401: 'Invalid token',
-                400: 'Missing Authorization header',
-                200: 'Success',
-                500: 'Cannot Delete',
-                501: "You're not Seller"
-            })
-        @auth_ns.doc(security='Bearer')
-        def delete(self, auctionid):
-            authorization_header = request.headers.get('Authorization')
-            auth_result = authService.authenticate_request(
-                authorization_header)
-            if isinstance(auth_result, dict):
-                return auth_result
-            id = auth_result
-            if auctionService.select_is_seller(id, auctionid):
-                result = auctionService.delete_auction(auctionid)
-                if result:
-                    return {'message': 'Auction updated successfully', 'result': marshal(result, Auction_fields)}, 200
-                else:
-                    return {'message': 'Cannot Delete'}, 500
-            else:
-                return {'message': "You're not Seller" }, 501
-            
-            
+
         @jwt_required()
         @auc_ns.doc(
             description='경매 조기 낙찰하기.',

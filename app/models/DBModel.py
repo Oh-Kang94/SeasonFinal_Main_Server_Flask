@@ -1,3 +1,4 @@
+from datetime import timedelta
 from ..config.Config import db
 from ..util.util import current_datetime
 
@@ -42,6 +43,7 @@ class Auction(db.Model):
     pricestart = db.Column(db.Integer, nullable=True)
     pricenow = db.Column(db.Integer, nullable=True)
     insertdate = db.Column(db.DateTime, default=current_datetime())
+    endeddate = db.Column(db.DateTime, default=current_datetime()+ + timedelta(days=1))
     deletedate = db.Column(db.DateTime, nullable=True)
     issuccessed = db.Column(db.Boolean, default=False)
     # 관계성 만들기

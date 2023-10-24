@@ -51,6 +51,7 @@ class AuctionService:
             auction.content = data['content']
             auction.pic = data['pic']
             auction.fish = data['fish']
+            auction.endeddate = data['endeddate']
             auction.pricestart = data['pricestart']
             db.session.commit()
             return auction
@@ -105,7 +106,7 @@ class AuctionService:
         '''경매 가격 Raise'''
         auction = Auction.query.filter_by(auctionid=auctionid).first()
         if auction:
-            if auction.pricenow and auction.pricestart < price:
+            if auction.pricenow < price and auction.pricestart < price:
                 auction.pricenow = price
                 db.session.commit()
                 return True
