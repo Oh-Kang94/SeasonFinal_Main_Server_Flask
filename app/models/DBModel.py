@@ -1,9 +1,5 @@
-from datetime import datetime
 from ..config.Config import db
-
-
-def current_datetime():
-    return datetime.utcnow()
+from ..util.util import current_datetime
 
 
 class User(db.Model):
@@ -15,10 +11,11 @@ class User(db.Model):
     phone = db.Column(db.String(45), nullable=True)
     address = db.Column(db.String(100), nullable=True)
     bankaccount = db.Column(db.String(45), nullable=True)
-    insertdate = db.Column(db.DateTime, default=current_datetime())
+    insertdate = db.Column(db.DateTime, default=current_datetime)
     deletedate = db.Column(db.DateTime, default=None)
     refreshtoken = db.Column(db.String(200), default=None)
     canseller = db.Column(db.Boolean, default=False)
+
 
 class Balance(db.Model):
     __tablename__ = 'balance'
@@ -36,11 +33,12 @@ class Auction(db.Model):
     auctionid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     seller_id = db.Column(
         db.String(45), db.ForeignKey('user.id'), nullable=True)
+    buyer_id = db.Column(db.String(45), nullable=True)
     title = db.Column(db.String(45), nullable=True)
     content = db.Column(db.Text, nullable=True)
     pic = db.Column(db.String(45), nullable=True)
     fish = db.Column(db.String(45), nullable=True)
-    view = db.Column(db.Integer, default = 0)
+    view = db.Column(db.Integer, default=0)
     pricestart = db.Column(db.Integer, nullable=True)
     pricenow = db.Column(db.Integer, nullable=True)
     insertdate = db.Column(db.DateTime, default=current_datetime())
@@ -52,7 +50,7 @@ class Auction(db.Model):
 
 class Bidded(db.Model):
     __tablename__ = 'bidded'
-    biddedid = db.Column(db.Integer, primary_key=True)
+    biddedid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     auctionid = db.Column(db.String(45), db.ForeignKey(
         'auction.auctionid'))
     buyerid = db.Column(db.String(45), db.ForeignKey('user.id'))
@@ -63,4 +61,3 @@ class Bidded(db.Model):
     # 관계성 만들기
     auction = db.relationship('Auction', backref='bids')
     user = db.relationship('User', backref='bidded_items')
-

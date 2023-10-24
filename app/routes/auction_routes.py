@@ -1,20 +1,21 @@
 from flask_restx import Resource, marshal, fields
 from flask import request
-from ..models.ApiModel import Auction_fields
+from ..models.ApiModel import Auction_fields, Bidded_fields
 from ..services.auction_service import AuctionService
 from ..services.auth_service import AuthService
 from ..config.Config import api
 from flask_jwt_extended import jwt_required
 
 
-def auction_routes(review_ns, auth_ns):
+def auction_routes(auc_ns, auth_ns):
     authService = AuthService()
+    auctionService = AuctionService()
 
-    @review_ns.route('/')
-    class CreateAuction(Resource):
+    @auc_ns.route('/')
+    class AuctionbyAll(Resource):
         @jwt_required()
-        @review_ns.doc(
-            description='경매시작하기.',
+        @auc_ns.doc(
+            description='경매 열기.',
             responses={
                 401: 'Invalid token',
                 400: 'Missing Authorization header',
@@ -22,12 +23,12 @@ def auction_routes(review_ns, auth_ns):
                 500: 'Already wrote Review',
             })
         @auth_ns.doc(security='Bearer')
-        @review_ns.expect(api.model('CreateReview', {
-            'title': fields.String(description='movie_id integer', example='도미'),
-            'content': fields.String(description='영화의 리뷰 내용', example='도미 굿'),
-            'pic': fields.String(description='영화의 평점으로 Rating', example='asd.jpg'),
-            'fish': fields.String(description='영화의 평점으로 Rating', example='도미'),
-            'pricestart': fields.String(description='영화의 평점으로 Rating', example='10000'),
+        @auc_ns.expect(api.model('CreateAuction', {
+            'title': fields.String(description='경매 제목', example='도미팝니당!'),
+            'content': fields.String(description='경매 내용', example='도미 굿'),
+            'pic': fields.String(description='경매 사진경로(Firebase)', example='asd.jpg'),
+            'fish': fields.String(description='경매에 쓰일 물고기', example='도미'),
+            'pricestart': fields.String(description='경매 시작가', example='10000'),
         }))
         def post(self):
             authorization_header = request.headers.get('Authorization')
@@ -37,33 +38,63 @@ def auction_routes(review_ns, auth_ns):
                 return auth_result
             id = auth_result
             data = api.payload
-            result = AuctionService.create_auction(
+            result = auctionService.create_auction(
                 data, id=id)
             if result:
-                return {'message': 'Review created successfully', 'result': marshal(result, Auction_fields), "socekturl": f"ws://127.0.0.1:18712/{result.auctionid}"}, 200
+                return {'message': 'Auction created successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
-                return {'message': 'Already wrote Review'}, 500
+                return {'message': 'Already wrote Auction'}, 500
+            
 
-    @review_ns.route('/<string:auctionid>')
-    class EditAuction(Resource):
+        @auc_ns.doc(
+            description='경매 불러오기.',
+            responses={
+                200: 'Success',
+                500: 'No Auction ongoing',
+            })
+        def get(self):
+            result = auctionService.create_auction()
+            if result:
+                return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
+            else:
+                return {'message': 'No Auction Ongoing'}, 500
+
+    @auc_ns.route('/<int:auctionid>')
+    class AuctionbyOne(Resource):
+        @auc_ns.doc(
+            description= '경매 정보 하나 가져오기',
+            response={
+                200: "Success",
+                500: "Failed to get Auction"
+            }
+        )
+        def get(self, auctionid):
+            result = auctionService.select_one_auction(auctionid)
+            if result:
+                return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
+            else:
+                return {'message': 'Failed to get Auction'}, 500
+            
+
         @jwt_required()
-        @review_ns.doc(
+        @auc_ns.doc(
             description='경매 수정하기.',
             responses={
                 401: 'Invalid token',
                 400: 'Missing Authorization header',
                 200: 'Success',
-                500: 'Already wrote Review',
+                500: 'Same as Before',
+                501: "You're not Seller"
             })
         @auth_ns.doc(security='Bearer')
-        @review_ns.expect(api.model('CreateReview', {
-            'title': fields.String(example='도미'),
-            'content': fields.String(example='도미 굿'),
-            'pic': fields.String(example='asd.jpg'),
-            'fish': fields.String(example='도미'),
-            'pricestart': fields.String(example='10000'),
+        @auc_ns.expect(api.model('UpdateAuction', {
+            'title': fields.String(description='경매 제목', example='도미팝니당!'),
+            'content': fields.String(description='경매 내용', example='도미 굿'),
+            'pic': fields.String(description='경매 사진경로(Firebase)', example='asd.jpg'),
+            'fish': fields.String(description='경매에 쓰일 물고기', example='도미'),
+            'pricestart': fields.String(description='경매 시작가', example='10000'),
         }))
-        def put(self):
+        def put(self, auctionid):
             authorization_header = request.headers.get('Authorization')
             auth_result = authService.authenticate_request(
                 authorization_header)
@@ -71,9 +102,94 @@ def auction_routes(review_ns, auth_ns):
                 return auth_result
             id = auth_result
             data = api.payload
-            result = AuctionService.create_auction(
-                data, id=id)
-            if result:
-                return {'message': 'Review created successfully', 'result': marshal(result, Auction_fields)}, 200
+            if auctionService.select_is_seller(id, auctionid):
+                result = auctionService.update_auction(
+                    data, id, auctionid)
+                if result:
+                    return {'message': 'Auction updated successfully', 'result': marshal(result, Auction_fields)}, 200
+                else:
+                    return {'message': 'Same as Before'}, 500
             else:
-                return {'message': 'Already wrote Review'}, 500
+                return {'message': "You're not Seller" }, 501
+        
+        @jwt_required()
+        @auc_ns.doc(
+            description='경매 삭제하기.',
+            responses={
+                401: 'Invalid token',
+                400: 'Missing Authorization header',
+                200: 'Success',
+                500: 'Same as Before',
+                501: "You're not Seller"
+            })
+        @auth_ns.doc(security='Bearer')
+        def delete(self, auctionid):
+            authorization_header = request.headers.get('Authorization')
+            auth_result = authService.authenticate_request(
+                authorization_header)
+            if isinstance(auth_result, dict):
+                return auth_result
+            id = auth_result
+            if auctionService.select_is_seller(id, auctionid):
+                result = auctionService.delete_auction(auctionid)
+                if result:
+                    return {'message': 'Auction delete successfully', 'result': marshal(result, Auction_fields)}, 200
+                else:
+                    return {'message': 'Same as Before'}, 500
+            else:
+                return {'message': "You're not Seller" }, 501
+        
+        @jwt_required()
+        @auc_ns.doc(
+            description='경매 삭제하기.',
+            responses={
+                401: 'Invalid token',
+                400: 'Missing Authorization header',
+                200: 'Success',
+                500: 'Cannot Delete',
+                501: "You're not Seller"
+            })
+        @auth_ns.doc(security='Bearer')
+        def delete(self, auctionid):
+            authorization_header = request.headers.get('Authorization')
+            auth_result = authService.authenticate_request(
+                authorization_header)
+            if isinstance(auth_result, dict):
+                return auth_result
+            id = auth_result
+            if auctionService.select_is_seller(id, auctionid):
+                result = auctionService.delete_auction(auctionid)
+                if result:
+                    return {'message': 'Auction updated successfully', 'result': marshal(result, Auction_fields)}, 200
+                else:
+                    return {'message': 'Cannot Delete'}, 500
+            else:
+                return {'message': "You're not Seller" }, 501
+            
+            
+        @jwt_required()
+        @auc_ns.doc(
+            description='경매 조기 낙찰하기.',
+            responses={
+                401: 'Invalid token',
+                400: 'Missing Authorization header',
+                200: 'Success',
+                500: 'Cannot Success Bid, need to find buyerid',
+                501: "You're not Seller"
+            })
+        @auth_ns.doc(security='Bearer')
+        def patch(self, auctionid):
+            authorization_header = request.headers.get('Authorization')
+            auth_result = authService.authenticate_request(
+                authorization_header)
+            if isinstance(auth_result, dict):
+                return auth_result
+            id = auth_result
+            if auctionService.select_is_seller(id, auctionid):
+                result = auctionService.complete_auction(auctionid)
+                if result:
+                    return {'message': 'Auction updated successfully', 'result': marshal(result, Bidded_fields)}, 200
+                else:
+                    return {'message': 'Cannot Success Bid, need to find buyerid'}, 500
+            else:
+                return {'message': "You're not Seller" }, 501
