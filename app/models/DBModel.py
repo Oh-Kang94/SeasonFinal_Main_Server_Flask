@@ -49,16 +49,14 @@ class Auction(db.Model):
     # 관계성 만들기
     seller = db.relationship('User', backref='auctions')
 
-
 class Bidded(db.Model):
     __tablename__ = 'bidded'
     biddedid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     auctionid = db.Column(db.String(45), db.ForeignKey(
         'auction.auctionid'))
-    buyerid = db.Column(db.String(45), db.ForeignKey('user.id'))
+    buyerid = db.Column(db.String(45), db.ForeignKey('user.id'), nullable = True)
     biddedprice = db.Column(db.String(45), nullable=True)
     biddeddate = db.Column(db.String(45),  default=current_datetime())
-    issuccessed = db.Column(db.Boolean, default=True)
 
     # 관계성 만들기
     auction = db.relationship('Auction', backref='bids')

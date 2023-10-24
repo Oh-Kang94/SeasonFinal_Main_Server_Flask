@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask_restx import Resource, marshal, fields
 from flask import request
 from ..models.ApiModel import Auction_fields, Bidded_fields
@@ -5,7 +6,7 @@ from ..services.auction_service import AuctionService
 from ..services.auth_service import AuthService
 from ..config.Config import api
 from flask_jwt_extended import jwt_required
-
+from apscheduler.schedulers.background import BackgroundScheduler
 
 def auction_routes(auc_ns, auth_ns):
     authService = AuthService()
@@ -40,12 +41,15 @@ def auction_routes(auc_ns, auth_ns):
             data = api.payload
             result = auctionService.create_auction(
                 data, id=id)
+            enddate = result.endeddate
+            sched = BackgroundScheduler(daemon=True)
+            sched.add_job(auctionService.setCloseAuction, 'date', run_date=enddate, args=[result.auctionid])
+            sched.start()
             if result:
                 return {'message': 'Auction created successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
                 return {'message': 'Already wrote Auction'}, 500
             
-
         @auc_ns.doc(
             description='경매 불러오기.',
             responses={
@@ -53,7 +57,7 @@ def auction_routes(auc_ns, auth_ns):
                 500: 'No Auction ongoing',
             })
         def get(self):
-            result = auctionService.create_auction()
+            result = auctionService.select_all_auction()
             if result:
                 return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
             else:

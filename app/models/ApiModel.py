@@ -31,8 +31,8 @@ Bidded_fields = api.model('Bidded', {
    "buyerid": fields.String(required=True, description="Buyer ID"),
    "biddedprice": fields.Float(required=True, description="Bidded Price"),
    "biddeddate": fields.DateTime(dt_format="iso8601", required=False),
-   "issuccessed": fields.Boolean(default=False)
 })
+
 Auction_fields = api.model('Auction', {
    "auctionid":fields.Integer(readOnly=True, description=" Auction Id "),
    "seller_id":fields.String(Required=True, description=" Seller Id "),

@@ -2,8 +2,10 @@ from ..models.DBModel import (
     Auction,
     Bidded
 )
+# from app import app
 from ..config.Config import db
 from ..util.util import current_datetime
+
 
 
 class AuctionService:
@@ -25,16 +27,36 @@ class AuctionService:
     @staticmethod
     def select_all_auction():
         '''진행중인 경매 다 가져오기'''
-        auction = Auction.query.filter_by(
-            deletedate=None, issuccessed= False).order_by(Auction.insertdate.desc())
-        return auction
+        auctions = Auction.query.filter_by(
+            deletedate=None, 
+            issuccessed= False
+            ).all()
+        auctions_list = []
+        for auction in auctions:
+            auction_data = {
+                'auctionid': auction.auctionid,
+                'seller_id': auction.seller_id,
+                'buyer_id': auction.buyer_id,
+                'title': auction.title,
+                'content': auction.content,
+                'pic': auction.pic,
+                'fish': auction.fish,
+                'view': auction.view,
+                'pricestart': auction.pricestart,
+                'pricenow': auction.pricenow,
+                'insertdate': auction.insertdate,
+                'endeddate': auction.endeddate,
+                'deletedate': auction.deletedate,
+                'issuccessed': auction.issuccessed,
+            }
+            auctions_list.append(auction_data)
+        return auctions_list
 
     @staticmethod
     def select_one_auction(auctionid):
         '''경매 하나 가져오기'''
         auction = Auction.query.filter_by(
             deletedate=None, issuccessed= False, auctionid=auctionid).one
-        print(auction)
         return auction
 
     @staticmethod
@@ -112,3 +134,64 @@ class AuctionService:
                 return True
         else:
             return False
+    
+    '''
+    RuntimeError: Working outside of application context.
+
+    This typically means that you attempted to use functionality that needed
+    the current application. To solve this, set up an application context
+    with app.app_context(). See the documentation for more information.
+    '''
+
+    @staticmethod
+    def setCloseAuction(auctionid):
+        '''시간 되면 경매 종료'''
+        from app import app
+        
+        with app.app_context():
+            auction = Auction.query.filter_by(auctionid=auctionid).first()
+            if auction.buyer_id:
+                auction.issuccessed = True
+                db.session.commit()
+                try : 
+                    bidded = Bidded(
+                        auctionid = auctionid,
+                        buyerid = auction.buyer_id,
+                        biddedprice = auction.pricenow,
+                    )
+                    db.session.add(bidded)
+                    db.session.commit()
+                    print(f"{auction.auctionid} 경매 완료!!")
+                    return bidded
+                except:
+                    return None
+            else:
+                auction.issuccessed = False
+                db.session.commit()
+                f"{auction.auctionid} 경매 완료!!"
+                return auction
+    
+    # @staticmethod
+    # def setCloseAuction(auctionid):
+    #     '''시간 되면 경매 종료'''
+    #     auction = Auction.query.filter_by(auctionid=auctionid).first()
+    #     if auction.buyer_id:
+    #         auction.issuccessed = True
+    #         db.session.commit()
+    #         try : 
+    #             bidded = Bidded(
+    #                 auctionid = auctionid,
+    #                 buyerid = auction.buyer_id,
+    #                 biddedprice = auction.pricenow,
+    #             )
+    #             db.session.add(bidded)
+    #             db.session.commit()
+    #             print(f"{auction.acutionid} 경매 완료!!")
+    #             return bidded
+    #         except:
+    #             return None
+    #     else:
+    #         auction.issuccessed = False
+    #         db.session.commit()
+    #         f"{auction.acutionid} 경매 완료!!"
+    #         return auction
