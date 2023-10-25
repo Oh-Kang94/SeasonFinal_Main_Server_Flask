@@ -1,4 +1,6 @@
-from flask_restx import Resource, fields
+from flask_restx import Resource, fields, marshal
+
+from app.models.ApiModel import User_fields
 from ..services.auth_service import AuthService
 from flask import request
 from ..config.Config import api
@@ -117,3 +119,31 @@ def user_routes(user_ns, auth_ns):
                 return {'message': 'User updated successfully'}, 200
             else:
                 return {'message': 'Wrong Password'}, 403
+    @user_ns.route('/')
+    class changePassword(Resource):
+        @user_ns.doc(
+            description='모든 유저 가져오기',
+            responses={
+                401: 'Invalid token',
+                402: "You're not Admin",
+                400: 'Missing Authorization header',
+                200: 'User updated successfully',
+                403: 'Wrong Password'
+            })
+        @jwt_required()
+        @auth_ns.doc(security='Bearer')
+        def get(self):
+            authorization_header = request.headers.get('Authorization')
+            auth_result = authService.authenticate_request(
+                authorization_header)
+            if isinstance(auth_result, dict):
+                return auth_result
+            id = auth_result
+            if id == "root":
+                result = UsersService.select_user_all()
+                if result:
+                    return {'message': 'Auction Loaded successfully', 'result': marshal(result, User_fields)}, 200
+                else:
+                    return {'message': 'No Bidded'}, 500
+            else:
+                return {'message': "You're not Admin"}, 402

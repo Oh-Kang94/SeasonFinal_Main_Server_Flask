@@ -58,3 +58,10 @@ class UsersService:
                 return False
         else:
             return False
+    
+    @staticmethod
+    def select_user_all():
+        '''유저 리스트 전부 가져오기'''
+        users = User.query.all()
+        users_list = [user.as_dict() for user in users]
+        return users_list
