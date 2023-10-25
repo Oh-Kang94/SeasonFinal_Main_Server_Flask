@@ -14,26 +14,16 @@ class BiddedService:
             deletedate=None, 
             issuccessed= False
             ).order_by(desc(Bidded.biddeddate)).all()
-        biddeds_list = []
-        for bidded in biddeds:
-            bidded_data = {
-                'biddedid': bidded.biddedid,
-                'auctionid': bidded.auctionid,
-                'buyerid': bidded.buyerid,
-                'biddedprice': bidded.biddedprice,
-                'biddeddate': bidded.biddeddate,
-                'address': bidded.address,
-                'deliverydate': bidded.deliverydate,
-                'paymentdate': bidded.paymentdate,
-            }
-            biddeds_list.append(bidded_data)
-        return biddeds_list
+        bidded_list = [bidded.as_dict() for bidded in biddeds]
+        return bidded_list
     
     @staticmethod
     def select_auction_query(query , value):
         '''경매결과 쿼리로 찾기"'''
-        bidded = Bidded.query.filter(getattr(Bidded, query) == value).one()
+        biddeds = Bidded.query.filter(getattr(Bidded, query) == value).all()
         # 이 경우 하나의 조건만 사용합니다.
         # getattr() 함수를 사용하여 Bidded 클래스의 속성을 동적으로 가져옵니다.
         # query 변수에 저장된 문자열 값이 Bidded 클래스의 속성과 일치하는지 확인합니다.
-        return bidded
+        bidded_list = [bidded.as_dict() for bidded in biddeds]
+        return bidded_list
+    

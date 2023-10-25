@@ -17,6 +17,9 @@ class User(db.Model):
     refreshtoken = db.Column(db.String(200), default=None)
     canseller = db.Column(db.Boolean, default=False)
 
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Balance(db.Model):
     __tablename__ = 'balance'
@@ -27,6 +30,9 @@ class Balance(db.Model):
 
     # 관계성 만들기
     user = db.relationship('User', backref='Balance')
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Auction(db.Model):
@@ -49,6 +55,9 @@ class Auction(db.Model):
     # 관계성 만들기
     seller = db.relationship('User', backref='auctions')
 
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 class Bidded(db.Model):
     __tablename__ = 'bidded'
     biddedid = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -64,3 +73,6 @@ class Bidded(db.Model):
 
     # 관계성 만들기
     auction = db.relationship('Auction', backref='bids')
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
