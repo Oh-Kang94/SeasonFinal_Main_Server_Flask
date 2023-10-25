@@ -16,9 +16,12 @@ def chat_routes(socketio, redis_client):
             return auth_result
         id = auth_result
         room = data["room"]
-        join_room(room)
-        AuctionService().countupAuctionView(room)
-        emit("message", f"{id} joined room {room}", to=room)
+        if AuctionService.select_one_ongoing_auction(room):
+            join_room(room)
+            AuctionService().countupAuctionView(room)
+            emit("message", f"{id} joined room {room}", to=room)
+        else:
+            emit("message", f"Rejected")
 
     @socketio.on("leave", namespace="/chat")
     def leaved_room(data):

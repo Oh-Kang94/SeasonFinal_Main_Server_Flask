@@ -5,6 +5,8 @@ from ..models.DBModel import (
 )
 from ..config.Config import db
 from ..util.util import current_datetime
+from sqlalchemy.orm.exc import NoResultFound
+
 
 
 
@@ -37,8 +39,12 @@ class AuctionService:
     @staticmethod
     def select_one_ongoing_auction(auctionid):
         '''진행중인 경매 하나 가져오기'''
-        auction = Auction.query.filter_by(
-            deletedate=None, issuccessed= False, auctionid=auctionid).one
+        try:
+            auction = Auction.query.filter_by(
+                deletedate=None, issuccessed=False, auctionid=auctionid
+            ).one()
+        except NoResultFound:
+            auction = None
         return auction
 
     @staticmethod
@@ -116,6 +122,8 @@ class AuctionService:
         if auction:
             if auction.pricenow < price and auction.pricestart < price:
                 auction.pricenow = price
+                db.session.commit()
+                auction.buyer_id = buyerid
                 db.session.commit()
                 return True
         else:

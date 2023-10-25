@@ -11,8 +11,6 @@ class BiddedService:
     def select_auction_all():
         '''경매결과 다 가져오기 - "경매완료일 내림차순"'''
         biddeds = Bidded.query.filter_by(
-            deletedate=None, 
-            issuccessed= False
             ).order_by(desc(Bidded.biddeddate)).all()
         bidded_list = [bidded.as_dict() for bidded in biddeds]
         return bidded_list
