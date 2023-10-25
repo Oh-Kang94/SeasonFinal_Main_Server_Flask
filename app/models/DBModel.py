@@ -40,11 +40,11 @@ class Auction(db.Model):
     pic = db.Column(db.String(45), nullable=True)
     fish = db.Column(db.String(45), nullable=True)
     view = db.Column(db.Integer, default=0)
-    pricestart = db.Column(db.Integer, nullable=True)
-    pricenow = db.Column(db.Integer, nullable=True)
+    pricestart = db.Column(db.Integer)
+    pricenow = db.Column(db.Integer, default = pricestart)
     insertdate = db.Column(db.DateTime, default=current_datetime())
-    endeddate = db.Column(db.DateTime, default=current_datetime()+ + timedelta(days=1))
     deletedate = db.Column(db.DateTime, nullable=True)
+    endeddate = db.Column(db.DateTime, default=current_datetime()+ + timedelta(days=1))
     issuccessed = db.Column(db.Boolean, default=False)
     # 관계성 만들기
     seller = db.relationship('User', backref='auctions')
@@ -54,10 +54,13 @@ class Bidded(db.Model):
     biddedid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     auctionid = db.Column(db.String(45), db.ForeignKey(
         'auction.auctionid'))
-    buyerid = db.Column(db.String(45), db.ForeignKey('user.id'), nullable = True)
+    buyerid = db.Column(db.String(45))
+    sellerid = db.Column(db.String(45))
     biddedprice = db.Column(db.String(45), nullable=True)
-    biddeddate = db.Column(db.String(45),  default=current_datetime())
+    biddeddate = db.Column(db.DateTime,  default=current_datetime())
+    address = db.Column(db.String(45), nullable=True)
+    deliverydate = db.Column(db.DateTime, nullable = True)
+    paymentdate = db.Column(db.DateTime, nullable = True)
 
     # 관계성 만들기
     auction = db.relationship('Auction', backref='bids')
-    user = db.relationship('User', backref='bidded_items')

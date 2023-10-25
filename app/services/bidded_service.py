@@ -22,6 +22,9 @@ class BiddedService:
                 'buyerid': bidded.buyerid,
                 'biddedprice': bidded.biddedprice,
                 'biddeddate': bidded.biddeddate,
+                'address': bidded.address,
+                'deliverydate': bidded.deliverydate,
+                'paymentdate': bidded.paymentdate,
             }
             biddeds_list.append(bidded_data)
         return biddeds_list
@@ -30,7 +33,6 @@ class BiddedService:
     def select_auction_query(query , value):
         '''경매결과 쿼리로 찾기"'''
         bidded = Bidded.query.filter(getattr(Bidded, query) == value).one()
-        # or_ 함수는 SQLAlchemy에서 "또는" 조건을 나타내며, 여러 조건 중 하나만 충족하면 결과를 반환합니다.
         # 이 경우 하나의 조건만 사용합니다.
         # getattr() 함수를 사용하여 Bidded 클래스의 속성을 동적으로 가져옵니다.
         # query 변수에 저장된 문자열 값이 Bidded 클래스의 속성과 일치하는지 확인합니다.

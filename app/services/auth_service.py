@@ -26,6 +26,7 @@ class AuthService:
     
     @staticmethod
     def authenticate_request(authorization_header):
+        '''header에 token을 파악하고 id를 바꿔주는 역할'''
         if authorization_header and authorization_header.startswith('Bearer '):
             decoded_token = AuthService.decode_token(authorization_header)
             if decoded_token:

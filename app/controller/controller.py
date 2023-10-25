@@ -9,10 +9,10 @@ from ..routes.bidded_routes import bidded_routes
 authorizations = {"Bearer": {"type": "apiKey", "in": "header", "name": "Authorization"}}
 
 def register_namespaces(api):
-    user_ns = Namespace("user", description= '유저 관련 정보')
+    user_ns = Namespace("users", description= '유저 관련 정보')
     auth_ns = Namespace("auth", authorizations= authorizations, description="로그인 및 인증 관련")
     ai_ns = Namespace("ai", description= 'AI MODEL TEST용')
-    auc_ns = Namespace("auction", description= '경매 관련')
+    auc_ns = Namespace("auctions", description= '경매 관련')
     bid_ns = Namespace("bidded", description= '경매결과 관련')
 
     user_routes(user_ns, auth_ns)

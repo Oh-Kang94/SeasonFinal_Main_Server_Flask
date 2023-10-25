@@ -1,8 +1,8 @@
+from app.services.user_service import UsersService
 from ..models.DBModel import (
     Auction,
     Bidded
 )
-# from app import app
 from ..config.Config import db
 from ..util.util import current_datetime
 
@@ -31,30 +31,12 @@ class AuctionService:
             deletedate=None, 
             issuccessed= False
             ).all()
-        auctions_list = []
-        for auction in auctions:
-            auction_data = {
-                'auctionid': auction.auctionid,
-                'seller_id': auction.seller_id,
-                'buyer_id': auction.buyer_id,
-                'title': auction.title,
-                'content': auction.content,
-                'pic': auction.pic,
-                'fish': auction.fish,
-                'view': auction.view,
-                'pricestart': auction.pricestart,
-                'pricenow': auction.pricenow,
-                'insertdate': auction.insertdate,
-                'endeddate': auction.endeddate,
-                'deletedate': auction.deletedate,
-                'issuccessed': auction.issuccessed,
-            }
-            auctions_list.append(auction_data)
-        return auctions_list
+        auctions_dict = [auction.as_dict() for auction in auctions]
+        return auctions_dict
 
     @staticmethod
-    def select_one_auction(auctionid):
-        '''경매 하나 가져오기'''
+    def select_one_ongoing_auction(auctionid):
+        '''진행중인 경매 하나 가져오기'''
         auction = Auction.query.filter_by(
             deletedate=None, issuccessed= False, auctionid=auctionid).one
         return auction
@@ -85,7 +67,7 @@ class AuctionService:
         '''경매 취소하기'''
         auction = Auction.query.filter_by(auctionid=auctionid, deletedate = None, issuccessed = False ).one()
         if auction:
-            auction.deletedate = current_datetime
+            auction.deletedate = current_datetime()
             db.session.commit()
             return auction
         else:
@@ -94,6 +76,7 @@ class AuctionService:
     @staticmethod
     def complete_auction(auctionid):
         '''경매 낙찰하기'''
+
         auction = Auction.query.filter_by(auctionid=auctionid).one()
         if auction:
             auction.issuccessed = True
@@ -102,7 +85,10 @@ class AuctionService:
                 bidded = Bidded(
                     auctionid = auctionid,
                     buyerid = auction.buyer_id,
+                    sellerid = auction.seller_id,
                     biddedprice = auction.pricenow,
+                    biddeddate = current_datetime(),
+                    address = UsersService.get_user_by_id(auction.buyer_id).address
                 )
                 db.session.add(bidded)
                 db.session.commit()
@@ -135,14 +121,6 @@ class AuctionService:
         else:
             return False
     
-    '''
-    RuntimeError: Working outside of application context.
-
-    This typically means that you attempted to use functionality that needed
-    the current application. To solve this, set up an application context
-    with app.app_context(). See the documentation for more information.
-    '''
-
     @staticmethod
     def setCloseAuction(auctionid):
         '''시간 되면 경매 종료'''
@@ -154,13 +132,7 @@ class AuctionService:
                 auction.issuccessed = True
                 db.session.commit()
                 try : 
-                    bidded = Bidded(
-                        auctionid = auctionid,
-                        buyerid = auction.buyer_id,
-                        biddedprice = auction.pricenow,
-                    )
-                    db.session.add(bidded)
-                    db.session.commit()
+                    bidded = AuctionService.complete_auction(auctionid)
                     print(f"{auction.auctionid} 경매 완료!!")
                     return bidded
                 except:
@@ -170,28 +142,3 @@ class AuctionService:
                 db.session.commit()
                 f"{auction.auctionid} 경매 완료!!"
                 return auction
-    
-    # @staticmethod
-    # def setCloseAuction(auctionid):
-    #     '''시간 되면 경매 종료'''
-    #     auction = Auction.query.filter_by(auctionid=auctionid).first()
-    #     if auction.buyer_id:
-    #         auction.issuccessed = True
-    #         db.session.commit()
-    #         try : 
-    #             bidded = Bidded(
-    #                 auctionid = auctionid,
-    #                 buyerid = auction.buyer_id,
-    #                 biddedprice = auction.pricenow,
-    #             )
-    #             db.session.add(bidded)
-    #             db.session.commit()
-    #             print(f"{auction.acutionid} 경매 완료!!")
-    #             return bidded
-    #         except:
-    #             return None
-    #     else:
-    #         auction.issuccessed = False
-    #         db.session.commit()
-    #         f"{auction.acutionid} 경매 완료!!"
-    #         return auction

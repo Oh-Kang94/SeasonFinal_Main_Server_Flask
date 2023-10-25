@@ -1,4 +1,3 @@
-from datetime import timedelta
 from flask_restx import Resource, marshal, fields
 from flask import request
 from ..models.ApiModel import Auction_fields, Bidded_fields
@@ -66,14 +65,14 @@ def auction_routes(auc_ns, auth_ns):
     @auc_ns.route('/<int:auctionid>')
     class AuctionbyOne(Resource):
         @auc_ns.doc(
-            description= '경매 정보 하나 가져오기',
+            description= '진행중인 경매 정보 하나 가져오기',
             response={
                 200: "Success",
                 500: "Failed to get Auction"
             }
         )
         def get(self, auctionid):
-            result = auctionService.select_one_auction(auctionid)
+            result = auctionService.select_one_ongoing_auction(auctionid)
             if result:
                 return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
