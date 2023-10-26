@@ -16,7 +16,11 @@ import redis
 
 app = Flask(__name__)
 
-CORS(app)
+CORS(app, supports_credentials=True,  resources={r"/*": {
+    "origins": "http://localhost:3000",
+    "expose_headers": ["access_token", "refresh_token"],
+    "allow_headers": ["Content-Type", "Authorization", "accept"]
+}})
 
 app.config['JSON_AS_ASCII'] = False
 
