@@ -39,7 +39,12 @@ class AiService() :
             ## 확률이 큰 순서대로 3개 가져오기. (이후 2개로 수정하는 것을 권장. 타겟이 4개 이기 때문; (학공치 제외))
             sorted_indices = np.argsort(pred) 
             
-            result = {}
+            results = []
             for i in range(1,3):
-                result[self.targetList[sorted_indices[0][-1*i]]] = pred[0][sorted_indices[0][-1*i]]
-            return json.dumps(result, default=self.custom_serializer, ensure_ascii=False)
+                result_item = {
+                    "name": self.targetList[sorted_indices[0][-1 * i]],
+                    "prob": str(pred[0][sorted_indices[0][-1 * i]])
+                }
+                results.append(result_item)
+
+            return {"result": results}

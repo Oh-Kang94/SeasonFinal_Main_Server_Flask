@@ -27,6 +27,7 @@ def ai_routes(ai_ns):
             try:
                 predictModel = AiService()
                 result = predictModel.predictFish(image_file)
+                
             except OSError:
                 abort(500, error="Cannot find the AI Model")
             return result
