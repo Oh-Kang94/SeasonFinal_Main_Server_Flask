@@ -50,7 +50,8 @@ class AuctionService:
     @staticmethod
     def select_is_seller(id, auctionid):
         '''Seller가 맞는지 확인 여부'''
-        return Auction.query.filter_by(id=id, auctionid=auctionid, deletedate = None, issuccessed = False ).exists
+        result = Auction.query.filter_by(seller_id=id, auctionid=auctionid, deletedate=None, issuccessed=False).first()
+        return result is not None
 
     @staticmethod
     def update_auction(data, id, auctionid):

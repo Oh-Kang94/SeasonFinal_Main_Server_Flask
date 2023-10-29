@@ -41,6 +41,7 @@ def auction_routes(auc_ns, auth_ns):
             result = auctionService.create_auction(
                 data, id=id)
             enddate = result.endeddate
+            ### 경매가 시작되면 endeddate에 자연적으로 경매가 끝남
             sched = BackgroundScheduler(daemon=True)
             sched.add_job(auctionService.setCloseAuction, 'date', run_date=enddate, args=[result.auctionid])
             sched.start()
@@ -72,11 +73,12 @@ def auction_routes(auc_ns, auth_ns):
             }
         )
         def get(self, auctionid):
+            AuctionService().countupAuctionView(auctionid)
             result = auctionService.select_one_ongoing_auction(auctionid)
             if result:
                 return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
-                return {'message': 'Failed to get Auction'}, 500
+                return {'message': 'Failed to get Ongoing Auction'}, 500
             
 
         @jwt_required()
@@ -168,3 +170,32 @@ def auction_routes(auc_ns, auth_ns):
                     return {'message': 'Cannot Success Bid, need to find buyerid'}, 500
             else:
                 return {'message': "You're not Seller" }, 501
+    
+    @auc_ns.route('/<int:auctionid>/<int:price>')
+    class AuctionbyOneWprice(Resource):
+        @jwt_required()
+        @auc_ns.doc(
+            description='경매 금액 올리기',
+            responses={
+                401: 'Invalid token',
+                400: 'Missing Authorization header',
+                200: 'Success',
+                500: 'Cannot Success Bid, need to find buyerid',
+                501: "You're not Seller"
+            })
+        @auth_ns.doc(security='Bearer')
+        def patch(self, auctionid, price):
+            authorization_header = request.headers.get('Authorization')
+            auth_result = authService.authenticate_request(
+                authorization_header)
+            if isinstance(auth_result, dict):
+                return auth_result
+            id = auth_result
+            print(auctionService.select_is_seller(id=id, auctionid=auctionid))
+            if not auctionService.select_is_seller(id=id, auctionid=auctionid):
+                if AuctionService().countupAuctionPrice(auctionid, price, id):
+                    return {'message': 'Auction updated successfully', 'result': f"{price}로 성공적으로 입찰하였습니다."}, 200
+                else:
+                    return {'message': f"{price}로 입찰실패하였습니다."}, 500
+            else:
+                return {'message': "You're not Buyer" }, 501    
