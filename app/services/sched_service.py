@@ -11,6 +11,8 @@ class SchedService:
         '''redis에 있는 정보 불러다 mysql에 저장하기'''
         messages = redis_client.hgetall(auctionid)
         print(messages)
+        print(redis_client.hkeys(auctionid))
+        print(type(auctionid))
         try:
             for timestamp, message in messages.items():
                 message_data = json.loads(message)
@@ -21,8 +23,10 @@ class SchedService:
                     timestamp=timestamp
                 )
                 db.session.add(chat)
-            if db.session.commit():
-                redis_client.delete(auctionid)
+                db.session.commit()
+                fields = redis_client.hkeys(auctionid)
+                for field in fields:
+                    redis_client.hdel(auctionid, field)
             return True
         except Exception as e:
             print(f"An error occurred: {e}")
