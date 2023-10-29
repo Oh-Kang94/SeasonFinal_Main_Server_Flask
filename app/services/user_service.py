@@ -3,17 +3,31 @@ from ..config.Config import db
 class UsersService:
     @staticmethod
     def create_user(data):
-        ''' user 회원가입하기'''
-        new_user = User(
+        ''' user 회원가입하기'''  
+        if data['bankaccount'] is not None:
+            new_user = User(
             id=data['id'],
             password=data['password'],
             name=data['name'],
             nickname=data['nickname'],
+            bankaccount=data['bankaccount'],
             phone=data['phone'],
             address=data['address'],
-        )
-        db.session.add(new_user)
-        db.session.commit()
+            canseller = True
+            )
+            db.session.add(new_user)
+            db.session.commit()
+        else:
+            new_user = User(
+                id=data['id'],
+                password=data['password'],
+                name=data['name'],
+                nickname=data['nickname'],
+                phone=data['phone'],
+                address=data['address'],
+            )
+            db.session.add(new_user)
+            db.session.commit()
         return new_user
 
     @staticmethod

@@ -48,7 +48,7 @@ def balance_routes(bal_ns, auth_ns):
                 406: "Not enough have point",
             })
         @auth_ns.doc(security='Bearer')
-        @bal_ns.expect(api.model('CreateAuction', {
+        @bal_ns.expect(api.model('CreateBalance', {
             'method': fields.String(description='충전인지 환급인지(convert, charge)', example='charge'),
             'amount': fields.String(description='충전 및 환급 금액', example='10000'),
         }))

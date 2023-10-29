@@ -11,6 +11,7 @@ from flask_jwt_extended import jwt_required
 def user_routes(user_ns, auth_ns):
 
     authService = AuthService()
+    userService = UsersService()
 
     @user_ns.route('/registration')
     class Register(Resource):
@@ -26,15 +27,17 @@ def user_routes(user_ns, auth_ns):
             'name': fields.String(description='사용자 이름', example='오강현'),
             'nickname': fields.String(description='사용자 닉네임', example='Oh-Kang94'),
             'phone': fields.String(description='사용자 전화번호', example='010-1234-5678'),
+            'bankaccount': fields.String(description='판매자 계좌번호', example='우리 0101-1234-5678111', required=False),
             'address': fields.String(description='사용자 주소', example='서울시 동대문구'),
         }))
         def post(self):
             data = api.payload
             id = data['id']
-            if UsersService.get_user_by_id(id):
+            print("찍히긴 하냐?")
+            if userService.get_user_by_id(id):
                 return {'message': 'User already exists'}, 400
-
-            new_user = UsersService.create_user(data)
+            print("bankaccount= "+ data['bankaccount'])
+            new_user = userService.create_user(data)
             return {'message': 'User created successfully', 'id': new_user.id}, 200
 
     @user_ns.route('/id/<string:id>')
@@ -46,7 +49,7 @@ def user_routes(user_ns, auth_ns):
                 200: 'Success',
             })
         def get(self, id):
-            if UsersService.get_user_by_id(id):
+            if userService.get_user_by_id(id):
                 return {'message': 'Email Duplicated'}, 400
             return {'message': 'Success'}, 200
 
@@ -59,7 +62,7 @@ def user_routes(user_ns, auth_ns):
                 200: 'Success',
             })
         def get(self, nickname):
-            if UsersService.get_user_by_nickname(nickname):
+            if userService.get_user_by_nickname(nickname):
                 return {'message': 'Nickname Duplicated'}, 400
             return {'message': 'Success'}, 200
 
@@ -82,9 +85,9 @@ def user_routes(user_ns, auth_ns):
             if isinstance(auth_result, dict):
                 return auth_result
             user_id = auth_result
-            if UsersService.get_user_by_nickname(nickname):
+            if userService.get_user_by_nickname(nickname):
                 return {'message': 'Nickname Duplicated'}, 403
-            if UsersService.update_nickname(user_id, nickname):
+            if userService.update_nickname(user_id, nickname):
                 return {'message': 'Nickname updated successfully'}, 200
             else:
                 return {'message': 'Server Error'}, 300
@@ -115,10 +118,11 @@ def user_routes(user_ns, auth_ns):
             data = api.payload
             currentPW = data['current']
             newPW = data['new']
-            if UsersService.update_password(user_id, currentPW, newPW):
+            if userService.update_password(user_id, currentPW, newPW):
                 return {'message': 'User updated successfully'}, 200
             else:
                 return {'message': 'Wrong Password'}, 403
+
     @user_ns.route('/')
     class changePassword(Resource):
         @user_ns.doc(
@@ -140,7 +144,7 @@ def user_routes(user_ns, auth_ns):
                 return auth_result
             id = auth_result
             if id == "root":
-                result = UsersService.select_user_all()
+                result = userService.select_user_all()
                 if result:
                     return {'message': 'Auction Loaded successfully', 'result': marshal(result, User_fields)}, 200
                 else:
