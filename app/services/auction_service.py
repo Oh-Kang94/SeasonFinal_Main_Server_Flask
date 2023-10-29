@@ -25,9 +25,16 @@ class AuctionService:
         db.session.add(newAuction)
         db.session.commit()
         return newAuction
-
+    
     @staticmethod
     def select_all_auction():
+        '''모든 경매 다 가져오기'''
+        auctions = Auction.query.all()
+        auctions_dict = [auction.as_dict() for auction in auctions]
+        return auctions_dict
+
+    @staticmethod
+    def select_all_ongoing_auction():
         '''진행중인 경매 다 가져오기'''
         auctions = Auction.query.filter_by(
             deletedate=None, 

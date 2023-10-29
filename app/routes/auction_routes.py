@@ -51,17 +51,23 @@ def auction_routes(auc_ns, auth_ns):
                 return {'message': 'Already wrote Auction'}, 500
             
         @auc_ns.doc(
-            description='경매 불러오기.',
+            description='경매 불러오기.(Admin은 admin header 넣기)',
             responses={
                 200: 'Success',
                 500: 'No Auction ongoing',
             })
         def get(self):
-            result = auctionService.select_all_auction()
-            if result:
-                return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
-            else:
-                return {'message': 'No Auction Ongoing'}, 500
+            authorization_header = request.headers.get('Authorization')
+            try:
+                authService.decode_token(authorization_header).get('sub') == "root"
+                result = auctionService.select_all_auction()
+                return {'message': 'All Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
+            except:    
+                result = auctionService.select_all_ongoing_auction()
+                if result:
+                    return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
+                else:
+                    return {'message': 'No Auction Ongoing'}, 500
 
     @auc_ns.route('/<int:auctionid>')
     class AuctionbyOne(Resource):
