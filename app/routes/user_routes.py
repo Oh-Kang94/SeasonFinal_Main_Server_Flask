@@ -13,33 +13,6 @@ def user_routes(user_ns, auth_ns):
     authService = AuthService()
     userService = UsersService()
 
-    @user_ns.route('/registration')
-    class Register(Resource):
-        @user_ns.doc(
-            description='회원가입',
-            responses={
-                400: 'User already exists',
-                200: 'User created successfully',
-            })
-        @user_ns.expect(api.model('Register', {
-            'id': fields.String(description='ID로 쓰임', example='okh19941994@naver.com'),
-            'password': fields.String(description='비밀번호', example='qwer1234'),
-            'name': fields.String(description='사용자 이름', example='오강현'),
-            'nickname': fields.String(description='사용자 닉네임', example='Oh-Kang94'),
-            'phone': fields.String(description='사용자 전화번호', example='010-1234-5678'),
-            'bankaccount': fields.String(description='판매자 계좌번호', example='우리 0101-1234-5678111', required=False),
-            'address': fields.String(description='사용자 주소', example='서울시 동대문구'),
-        }))
-        def post(self):
-            data = api.payload
-            id = data['id']
-            print("찍히긴 하냐?")
-            if userService.get_user_by_id(id):
-                return {'message': 'User already exists'}, 400
-            print("bankaccount= "+ data['bankaccount'])
-            new_user = userService.create_user(data)
-            return {'message': 'User created successfully', 'id': new_user.id}, 200
-
     @user_ns.route('/id/<string:id>')
     class findEmail(Resource):
         @user_ns.doc(
@@ -151,3 +124,27 @@ def user_routes(user_ns, auth_ns):
                     return {'message': 'No Bidded'}, 500
             else:
                 return {'message': "You're not Admin"}, 402
+            
+        
+        @user_ns.doc(
+            description='회원가입',
+            responses={
+                400: 'User already exists',
+                200: 'User created successfully',
+            })
+        @user_ns.expect(api.model('Register', {
+            'id': fields.String(description='ID로 쓰임', example='okh19941994@naver.com'),
+            'password': fields.String(description='비밀번호', example='qwer1234'),
+            'name': fields.String(description='사용자 이름', example='오강현'),
+            'nickname': fields.String(description='사용자 닉네임', example='Oh-Kang94'),
+            'phone': fields.String(description='사용자 전화번호', example='010-1234-5678'),
+            'bankaccount': fields.String(description='판매자 계좌번호', example='우리 0101-1234-5678111', required = False),
+            'address': fields.String(description='사용자 주소', example='서울시 동대문구'),
+        }))
+        def post(self):
+            data = api.payload
+            id = data['id']
+            if userService.get_user_by_id(id):
+                return {'message': 'User already exists'}, 400
+            new_user = userService.create_user(data)
+            return {'message': 'User created successfully', 'id': new_user.id}, 200

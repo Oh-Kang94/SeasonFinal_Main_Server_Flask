@@ -33,8 +33,6 @@ def auth_routes(auth_ns):
                 return response, 200, response_headers
             return {'message': 'Invalid credentials'}, 401
         
-    @auth_ns.route('/access')
-    class Refresh(Resource):
         @jwt_required(refresh=True)
         @auth_ns.doc(security = 'Bearer', description = 'ACCESS_TOKEN을 발급 받기 위함.',)  
         def get(self):

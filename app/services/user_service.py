@@ -4,30 +4,19 @@ class UsersService:
     @staticmethod
     def create_user(data):
         ''' user 회원가입하기'''  
-        if data['bankaccount'] is not None:
-            new_user = User(
+        bankaccount = data.get('bankaccount', None)
+        new_user = User(
             id=data['id'],
             password=data['password'],
             name=data['name'],
             nickname=data['nickname'],
-            bankaccount=data['bankaccount'],
+            bankaccount=bankaccount,
             phone=data['phone'],
             address=data['address'],
-            canseller = True
-            )
-            db.session.add(new_user)
-            db.session.commit()
-        else:
-            new_user = User(
-                id=data['id'],
-                password=data['password'],
-                name=data['name'],
-                nickname=data['nickname'],
-                phone=data['phone'],
-                address=data['address'],
-            )
-            db.session.add(new_user)
-            db.session.commit()
+            canseller=(bankaccount is not None)  # 'bankaccount'가 있을 때만 canseller를 True로 설정
+        )
+        db.session.add(new_user)
+        db.session.commit()
         return new_user
 
     @staticmethod
