@@ -7,7 +7,8 @@ from ..routes.ai_routes import ai_routes
 from ..routes.auth_routes import auth_routes
 from ..routes.bidded_routes import bidded_routes
 from ..routes.balance_routes import balance_routes
-
+from ..routes.sched_routes import sched_routes
+from apscheduler.schedulers.background import BackgroundScheduler
 authorizations = {"Bearer": {"type": "apiKey", "in": "header", "name": "Authorization"}}
 
 def register_namespaces(api):
@@ -17,6 +18,7 @@ def register_namespaces(api):
     auc_ns = Namespace("auctions", description= '경매 관련')
     bid_ns = Namespace("bidded", description= '경매결과 관련')
     bal_ns = Namespace("balance", description= '유저의 포인트')
+    sched_ns = Namespace("sched", description= '스케쥴 전용 (사용금지)')
 
     user_routes(user_ns, auth_ns)
     auth_routes(auth_ns)
@@ -24,6 +26,8 @@ def register_namespaces(api):
     auction_routes(auc_ns, auth_ns)
     bidded_routes(bid_ns, auth_ns)
     balance_routes(bal_ns, auth_ns)
+    from app import redis_client
+    sched_routes(sched_ns, redis_client)
 
     api.add_namespace(user_ns)
     api.add_namespace(auth_ns)
@@ -31,3 +35,10 @@ def register_namespaces(api):
     api.add_namespace(auc_ns)
     api.add_namespace(bid_ns)
     api.add_namespace(bal_ns)
+    api.add_namespace(sched_ns)
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(sched_routes, 'cron', args=[sched_ns, redis_client], hour=2, minute=0)
+    scheduler.start()
+
+

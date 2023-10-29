@@ -40,16 +40,16 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = os.environ.get("REDIS_PORT")
 
-api.init_app(app)
-db.init_app(app)
-jwt.init_app(app)
-socketio = SocketIO(app, cors_allowed_origins="*", message_queue= f'redis://{REDIS_HOST}:{REDIS_PORT}', 
-                    logger=True)
 redis_client = redis.StrictRedis(
     host=REDIS_HOST,
     port=REDIS_PORT,
     decode_responses=True
 )
+api.init_app(app)
+db.init_app(app)
+jwt.init_app(app)
+socketio = SocketIO(app, cors_allowed_origins="*", message_queue= f'redis://{REDIS_HOST}:{REDIS_PORT}', 
+                    logger=True)
 register_namespaces(api)
 chat_routes(socketio, redis_client)
 

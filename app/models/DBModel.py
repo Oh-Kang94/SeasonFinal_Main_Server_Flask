@@ -18,7 +18,7 @@ class User(db.Model):
     canseller = db.Column(db.Boolean, default=False)
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Balance(db.Model):
@@ -32,7 +32,7 @@ class Balance(db.Model):
     user = db.relationship('User', backref='Balance')
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Auction(db.Model):
@@ -47,16 +47,18 @@ class Auction(db.Model):
     fish = db.Column(db.String(45), nullable=True)
     view = db.Column(db.Integer, default=0)
     pricestart = db.Column(db.Integer)
-    pricenow = db.Column(db.Integer, default = pricestart)
+    pricenow = db.Column(db.Integer, default=pricestart)
     insertdate = db.Column(db.DateTime, default=current_datetime())
     deletedate = db.Column(db.DateTime, nullable=True)
-    endeddate = db.Column(db.DateTime, default=current_datetime()+ + timedelta(days=1))
+    endeddate = db.Column(
+        db.DateTime, default=current_datetime() + + timedelta(days=1))
     issuccessed = db.Column(db.Boolean, default=False)
     # 관계성 만들기
     seller = db.relationship('User', backref='auctions')
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Bidded(db.Model):
     __tablename__ = 'bidded'
@@ -68,11 +70,26 @@ class Bidded(db.Model):
     biddedprice = db.Column(db.String(45), nullable=True)
     biddeddate = db.Column(db.DateTime,  default=current_datetime())
     address = db.Column(db.String(45), nullable=True)
-    deliverydate = db.Column(db.DateTime, nullable = True)
-    paymentdate = db.Column(db.DateTime, nullable = True)
+    deliverydate = db.Column(db.DateTime, nullable=True)
+    paymentdate = db.Column(db.DateTime, nullable=True)
 
     # 관계성 만들기
     auction = db.relationship('Auction', backref='bids')
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class Chatlog(db.Model):
+    __tablename__ = 'chatlog'
+    biddedid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    auctionid = db.Column(db.Integer, db.ForeignKey(
+        'auction.auctionid'))
+    sender_id = db.Column(db.String(45))
+    message = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, nullable=True)
+
+    auction = db.relationship('Auction', backref='Chatlog')
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
