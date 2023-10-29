@@ -14,6 +14,13 @@ class BalanceService:
         return total_amount
     
     @staticmethod
+    def select_all_point():
+        '''모든 총 포인트 확인'''
+        balances = Balance.query.all()
+        balances_dict = [balance.as_dict() for balance in balances]
+        return balances_dict
+    
+    @staticmethod
     def insert_point(amount, id):
         '''충전 및 환급내역 추가'''
         new_balance = Balance(

@@ -1,5 +1,5 @@
 
-from flask_restx import Resource, fields
+from flask_restx import Resource, fields, marshal
 from flask import request
 from flask_jwt_extended import jwt_required
 from app.services.balance_service import BalanceService
@@ -31,11 +31,15 @@ def balance_routes(bal_ns, auth_ns):
             if isinstance(auth_result, dict):
                 return auth_result
             id = auth_result
-            result = balanceService.select_my_point(id)
-            if result:
-                return {'message': 'Amounts Loaded Successfully', 'result': str(result)}, 200
-            else:
-                return {'message': "You haven't use yet"}, 500
+            if id == 'root':
+                result = balanceService.select_all_point()
+                return {'message': 'All Balances Loaded Successfully', 'result': marshal(result, Balance_fields)}, 200
+            else :
+                result = balanceService.select_my_point(id)
+                if result:
+                    return {'message': 'Amounts Loaded Successfully', 'result': str(result)}, 200
+                else:
+                    return {'message': "You haven't use yet"}, 500
 
         @jwt_required()
         @bal_ns.doc(
