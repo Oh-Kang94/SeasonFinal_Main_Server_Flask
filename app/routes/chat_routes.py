@@ -19,9 +19,9 @@ def chat_routes(socketio, redis_client):
         if AuctionService.select_one_ongoing_auction(room):
             join_room(room)
             AuctionService().countupAuctionView(room)
-            emit("message", f"{id} joined room {room}", to=room)
+            emit("message", f"{id}님이 경매에 참여하였습니다.", to=room)
         else:
-            emit("message", f"Rejected")
+            emit("system", f"Rejected")
 
     @socketio.on("leave", namespace="/chat")
     def leaved_room(data):
@@ -33,7 +33,7 @@ def chat_routes(socketio, redis_client):
             return auth_result
         id = auth_result
         leave_room(room)
-        emit("message", f"{id} left room {room}", to=room)
+        emit("message", f"{id}님이 방을 나갔습니다.", to=room)
 
     @socketio.on("message", namespace="/chat")
     def handle_message(data):
@@ -51,7 +51,7 @@ def chat_routes(socketio, redis_client):
             try:
                 price_now = int(price_now)
                 if AuctionService().countupAuctionPrice(room, price_now, id):
-                    message = f"{price_now}로 성공적으로 입찰하였습니다."
+                    message = f"{id}님이 {price_now}로 성공적으로 입찰하였습니다."
                     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     message_data = {
                         "user": id,
@@ -61,7 +61,7 @@ def chat_routes(socketio, redis_client):
                     redis_client.hset(room, current_time, message_data_str)
                     emit("message", message_data, to=room)
                 else:
-                    message = f"{price_now}로 입찰실패하였습니다."
+                    message = f"{price_now}로 입찰실패하였습니다. 금액을 확인 후 시도해 주세요."
                     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     message_data = {
                         "user": id,
@@ -85,5 +85,4 @@ def chat_routes(socketio, redis_client):
             context = item['message']
             result[timestamp] = {'user': user, 'context': context}
         result.update({k: json.loads(v) for k, v in messages.items()})
-        print(result)
         emit("system" ,result, to=room)
