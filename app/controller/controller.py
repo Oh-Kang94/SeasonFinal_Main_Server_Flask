@@ -38,7 +38,7 @@ def register_namespaces(api):
     api.add_namespace(sched_ns)
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(sched_routes, 'cron', args=[sched_ns, redis_client], hour=2, minute=0)
+    scheduler.add_job(sched_routes, 'cron', args=[sched_ns, redis_client], hour=9, minute=40)
     scheduler.start()
 
 

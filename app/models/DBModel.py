@@ -82,7 +82,7 @@ class Bidded(db.Model):
 
 class Chatlog(db.Model):
     __tablename__ = 'chatlog'
-    biddedid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    logid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     auctionid = db.Column(db.Integer, db.ForeignKey(
         'auction.auctionid'))
     sender_id = db.Column(db.String(45))

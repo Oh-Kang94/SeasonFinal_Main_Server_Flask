@@ -1,7 +1,8 @@
 from app.services.user_service import UsersService
 from ..models.DBModel import (
     Auction,
-    Bidded
+    Bidded,
+    Chatlog
 )
 from ..config.Config import db
 from ..util.util import current_datetime
@@ -158,3 +159,12 @@ class AuctionService:
                 db.session.commit()
                 f"{auction.auctionid} 경매 완료!!"
                 return auction
+    
+    @staticmethod
+    def getChatlogMysql(room):
+        try:
+            chatlogs = Chatlog.query.filter_by(auctionid = room).all()
+            chatlogs = [chatlog.as_dict() for chatlog in chatlogs]
+            return chatlogs
+        except:
+            return None

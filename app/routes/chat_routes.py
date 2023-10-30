@@ -52,21 +52,38 @@ def chat_routes(socketio, redis_client):
                 price_now = int(price_now)
                 if AuctionService().countupAuctionPrice(room, price_now, id):
                     message = f"{price_now}로 성공적으로 입찰하였습니다."
+                    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    message_data = {
+                        "user": id,
+                        "context": message,
+                    }
+                    message_data_str = json.dumps(message_data) 
+                    redis_client.hset(room, current_time, message_data_str)
+                    emit("message", message_data, to=room)
                 else:
                     message = f"{price_now}로 입찰실패하였습니다."
+                    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    message_data = {
+                        "user": id,
+                        "context": message,
+                    }
+                    message_data_str = json.dumps(message_data) 
+                    emit("system", message_data, to=room)
             except ValueError:
                 message = "숫자값을 입력하세요"
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        message_data = {
-            "user": id,
-            "context": message,
-        }
-        message_data_str = json.dumps(message_data) 
-        redis_client.hset(room, current_time, message_data_str)
-        emit("message", message_data, to=room)
+        
 
     @socketio.on("getmessage", namespace="/chat")
     def get_messages(data):
         room = data["room"]
         messages = redis_client.hgetall(room)
-        emit("message" ,{k: json.loads(v) for k, v in messages.items()}, to=room)
+        mysql = AuctionService.getChatlogMysql(room)
+        result = {}
+        for item in mysql:
+            timestamp = item['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
+            user = item['sender_id']
+            context = item['message']
+            result[timestamp] = {'user': user, 'context': context}
+        result.update({k: json.loads(v) for k, v in messages.items()})
+        print(result)
+        emit("system" ,result, to=room)
