@@ -10,16 +10,13 @@ class SchedService:
     def save_redis_to_mysql(auctionid, redis_client):
         '''redis에 있는 정보 불러다 mysql에 저장하기'''
         messages = redis_client.hgetall(auctionid)
-        print(messages)
-        print(redis_client.hkeys(auctionid))
-        print(type(auctionid))
+        message_data = SchedService.sorted_redis_messages(messages)
         try:
-            for timestamp, message in messages.items():
-                message_data = json.loads(message)
+            for timestamp, message in message_data.items():
                 chat = Chatlog(
                     auctionid= auctionid,
-                    sender_id=message_data['user'],
-                    message=message_data['context'],
+                    sender_id=message['user'],
+                    message=message['context'],
                     timestamp=timestamp
                 )
                 db.session.add(chat)
@@ -31,3 +28,13 @@ class SchedService:
         except Exception as e:
             print(f"An error occurred: {e}")
             return False
+    
+    @staticmethod
+    def sorted_redis_messages(messages):
+        '''timestamp 별로 정렬'''
+        sorted_messages = {}
+        for timestamp_str, message_data_str in messages.items():
+            message_data = json.loads(message_data_str)
+            sorted_messages[timestamp_str] = message_data
+        sorted_messages = dict(sorted(sorted_messages.items(), key=lambda item: item[0]))
+        return sorted_messages
