@@ -6,7 +6,7 @@ Swift App을 위한 Flask 기반의 RESTful 및 Socketio 서버 입니다.
 
 ## 관련 PDF 설정
 <a href ="https://docs.google.com/presentation/d/1guynCM9FxU7GH3fNlxiqnO5YECwNdO_zMQWiROuSxUU/edit?usp=sharing">
-    <img src = "https://github.com/Oh-Kang94/Season4_Main-Project-App/blob/main/readme/images/PPT.png">
+    <img src = "https://github.com/Oh-Kang94/SeasonFinal_Main_Server_Flask/blob/main/readme/images/PPT.png">
     <br/>             
   누르시면, 관련 PPT로 이동됩니다.
 </a>
@@ -14,7 +14,7 @@ Swift App을 위한 Flask 기반의 RESTful 및 Socketio 서버 입니다.
 ## API 문서
 이 프로젝트의 API 문서는 Swagger UI를 통해 확인할 수 있습니다.
 <a href="https://final.oh-kang.kro.kr">
-    <img src = "https://github.com/Oh-Kang94/Season4_Main-Project-App/blob/main/readme/images/SwaggerUI.png">
+    <img src = "https://github.com/Oh-Kang94/SeasonFinal_Main_Server_Flask/blob/main/readme/images/SwaggerUI.png">
     <br/>             
   Swagger UI보러 가기!!
 </a>    
