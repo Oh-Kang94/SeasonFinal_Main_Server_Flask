@@ -7,6 +7,7 @@ from ..config.Config import api
 from flask_jwt_extended import jwt_required
 from apscheduler.schedulers.background import BackgroundScheduler
 
+
 def auction_routes(auc_ns, auth_ns):
     authService = AuthService()
     auctionService = AuctionService()
@@ -41,15 +42,16 @@ def auction_routes(auc_ns, auth_ns):
             result = auctionService.create_auction(
                 data, id=id)
             enddate = result.endeddate
-            ### 경매가 시작되면 endeddate에 자연적으로 경매가 끝남
+            # 경매가 시작되면 endeddate에 자연적으로 경매가 끝남
             sched = BackgroundScheduler(daemon=True)
-            sched.add_job(auctionService.setCloseAuction, 'date', run_date=enddate, args=[result.auctionid])
+            sched.add_job(auctionService.setCloseAuction, 'date',
+                          run_date=enddate, args=[result.auctionid])
             sched.start()
             if result:
                 return {'message': 'Auction created successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
                 return {'message': 'Already wrote Auction'}, 500
-            
+
         @auc_ns.doc(
             description='경매 불러오기.(Admin은 admin header 넣기)',
             responses={
@@ -59,10 +61,11 @@ def auction_routes(auc_ns, auth_ns):
         def get(self):
             authorization_header = request.headers.get('Authorization')
             try:
-                authService.decode_token(authorization_header).get('sub') == "root"
+                authService.decode_token(
+                    authorization_header).get('sub') == "root"
                 result = auctionService.select_all_auction()
                 return {'message': 'All Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
-            except:    
+            except:
                 result = auctionService.select_all_ongoing_auction()
                 if result:
                     return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
@@ -72,7 +75,7 @@ def auction_routes(auc_ns, auth_ns):
     @auc_ns.route('/<int:auctionid>')
     class AuctionbyOne(Resource):
         @auc_ns.doc(
-            description= '진행중인 경매 정보 하나 가져오기',
+            description='진행중인 경매 정보 하나 가져오기',
             response={
                 200: "Success",
                 500: "Failed to get Auction"
@@ -85,7 +88,6 @@ def auction_routes(auc_ns, auth_ns):
                 return {'message': 'Auction Loaded successfully', 'result': marshal(result, Auction_fields)}, 200
             else:
                 return {'message': 'Failed to get Ongoing Auction'}, 500
-            
 
         @jwt_required()
         @auc_ns.doc(
@@ -121,8 +123,8 @@ def auction_routes(auc_ns, auth_ns):
                 else:
                     return {'message': 'Same as Before'}, 500
             else:
-                return {'message': "You're not Seller" }, 501
-        
+                return {'message': "You're not Seller"}, 501
+
         @jwt_required()
         @auc_ns.doc(
             description='경매 삭제하기.',
@@ -148,7 +150,7 @@ def auction_routes(auc_ns, auth_ns):
                 else:
                     return {'message': 'Same as Before'}, 500
             else:
-                return {'message': "You're not Seller" }, 501
+                return {'message': "You're not Seller"}, 501
 
         @jwt_required()
         @auc_ns.doc(
@@ -175,8 +177,8 @@ def auction_routes(auc_ns, auth_ns):
                 else:
                     return {'message': 'Cannot Success Bid, need to find buyerid'}, 500
             else:
-                return {'message': "You're not Seller" }, 501
-    
+                return {'message': "You're not Seller"}, 501
+
     @auc_ns.route('/<int:auctionid>/<int:price>')
     class AuctionbyOneWprice(Resource):
         @jwt_required()
@@ -204,4 +206,4 @@ def auction_routes(auc_ns, auth_ns):
                 else:
                     return {'message': f"{price}로 입찰실패하였습니다."}, 500
             else:
-                return {'message': "You're not Buyer" }, 501    
+                return {'message': "You're not Buyer"}, 501
