@@ -2,14 +2,17 @@
 
 ## 소개
 Mysql와의 연결, TensorFlow라이브러리를 통한 AI Model 분석 등          
-Swift App을 위한 Flask 기반의 RESTful 및 Socketio 서버 입니다.
+Swift & Ract App을 위한 Flask 기반의 RESTful 및 Socketio 서버 입니다.
 
-## 관련 PDF 설정
+## 관련 PDF
 <a href ="https://docs.google.com/presentation/d/1guynCM9FxU7GH3fNlxiqnO5YECwNdO_zMQWiROuSxUU/edit?usp=sharing">
     <img src = https://github.com/Oh-Kang94/SeasonFinal_Main_Server_Flask/blob/master/readme/images/PPT.png>
     <br/>             
   누르시면, 관련 PPT로 이동됩니다.
 </a>
+
+## 서버 구성도
+<img src = https://github.com/Oh-Kang94/SeasonFinal_Main_Server_Flask/blob/master/readme/images/Server.png>
 
 ## API 문서
 이 프로젝트의 API 문서는 Swagger UI를 통해 확인할 수 있습니다.
