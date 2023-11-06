@@ -25,8 +25,9 @@ Swift & Ract App을 위한 Flask 기반의 RESTful 및 Socketio 서버 입니다
 ### 간략 설명 
 1. APScheduler를 이용한 서버 스케쥴로 활용한 자동화
 2. SOCKET.IO를 이용한 간단한 채팅 및 경매 운영
-3. JWT를 이용한 인증 방식의 보안 구성
-4. uWSGI를 이용한 비동기 서버 애플리케이션 처리
+<a href="https://drive.google.com/file/d/1UBy0H5HQvWN7DPqqCx3F-KMDegwKeQiC/view?usp=share_link" title="시연영상으로 이동">![image](https://github.com/Oh-Kang94/SeasonFinal_Main_Server_Flask/blob/master/readme/images/socket_image.png)</a>
+4. JWT를 이용한 인증 방식의 보안 구성
+5. uWSGI를 이용한 비동기 서버 애플리케이션 처리
 
 ### SCOKTIO 구성
 \<Join> : Room(Auctionid)를 입장해, “Message”, “System” 이벤트를 듣게 만든다.<br>
